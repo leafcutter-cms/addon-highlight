@@ -1,0 +1,19 @@
+site:
+  url: 'http://localhost/addon-template/demo/'
+
+theme:
+  activate:
+    - core/basic
+
+templates:
+  site:
+    name: Demo Leafcutter site
+
+cache:
+  driver: ephemeral
+  directory: '${base_dir}/cache/'
+
+assets:
+  output:
+    directory: '${base_dir}/assets/'
+    url: '@/assets/'
