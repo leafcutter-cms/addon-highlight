@@ -1,9 +1,19 @@
 site:
-  url: 'http://localhost/addon-template/demo/'
+  url: 'http://localhost/addon-highlight/demo/'
 
 theme:
   activate:
     - core/basic
+  css:
+    bundle: false
+    minify: false
+  js:
+    bundle: false
+    minify: false
+
+addons:
+  activate:
+    - syntax-highlighting
 
 templates:
   site:

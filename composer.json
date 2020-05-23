@@ -1,12 +1,12 @@
 {
-    "name": "leafcutter/addon-template",
-    "description": "Leafcutter addon project template. Before beginning change extra/leafcutter-addon and the autoloader to your own namespace.",
+    "name": "leafcutter/addon-highlight",
+    "description": "Addon to provide global server-side syntax highlighting of anything in an HTML code tag",
     "extra": {
-        "leafcutter-addon": "Leafcutter\\Addons\\MyNamespace\\MyAddon\\Addon"
+        "leafcutter-addon": "Leafcutter\\Addons\\Leafcutter\\SyntaxHighlighting\\Addon"
     },
     "autoload": {
         "psr-4": {
-            "Leafcutter\\Addons\\MyNamespace\\MyAddon\\": "src"
+            "Leafcutter\\Addons\\Leafcutter\\SyntaxHighlighting\\": "src"
         }
     },
     "authors": [
@@ -21,6 +21,10 @@
     "prefer-stable": true,
     "require-dev": {
         "leafcutter/leafcutter": "dev-master",
-        "leafcutter/theme-core": "dev-master"
+        "leafcutter/theme-core": "*"
+    },
+    "require": {
+        "leafcutter/theme-hljs": "*",
+        "scrivo/highlight.php": "v9.18.1.1"
     }
 }

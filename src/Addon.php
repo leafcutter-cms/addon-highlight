@@ -1,5 +1,10 @@
 <?php
-namespace Leafcutter\Addons\MyNamespace\MyAddon;
+namespace Leafcutter\Addons\Leafcutter\SyntaxHighlighting;
+
+use DomainException;
+use Highlight\Highlighter;
+use Leafcutter\DOM\DOMEvent;
+use Leafcutter\Response;
 
 class Addon extends \Leafcutter\Addons\AbstractAddon
 {
@@ -8,7 +13,93 @@ class Addon extends \Leafcutter\Addons\AbstractAddon
      * for some other reason can't be a constant, delete this constant and
      * override the method `getDefaultConfig()` instead.
      */
-    const DEFAULT_CONFIG = [];
+    const DEFAULT_CONFIG = [
+        'autodetect' => [
+            'css',
+            'http',
+            'javascript',
+            'json',
+            'markdown',
+            'php',
+            'scss',
+            'sql',
+            'twig',
+            'twig',
+            'xml',
+            'yaml',
+        ],
+    ];
+
+    /**
+     * Check response content for <code> tags and inject CSS if
+     * they are found
+     */
+    public function onResponsePageSet(Response $response)
+    {
+        if (strpos($response->content(), '<code') !== false) {
+            $this->leafcutter->theme()->activate('library/hljs/css');
+        }
+    }
+
+    /**
+     * Handle <code> tags in DOM
+     */
+    public function onDOMElement_code(DOMEvent $event)
+    {
+        // get node and classes
+        $node = $event->getNode();
+        $classes = array_filter(explode(' ', $node->getAttribute('class') ?? ''));
+        // abort if class nohighlight is found
+        if (in_array('nohighlight', $classes)) {
+            return;
+        }
+        // try to find a language specified in the classes
+        $lang = null;
+        if (in_array('plaintext', $classes)) {
+            $lang = 'plaintext';
+        }
+        foreach ($classes as $class) {
+            if (preg_match('/^lang(uage)?-(.+)$/', $class, $matches)) {
+                $lang = $matches[1];
+            }
+        }
+        // do highlighting
+        $result = $this->highlight($node->textContent, $lang);
+        $classes[] = 'hljs';
+        $classes[] = 'lang-' . $result->language;
+        $classes[] = 'language-' . $result->language;
+        $classes = array_unique($classes);
+        // replace node with this updated one
+        $event->setReplacement("<code class=\"" . implode(' ', $classes) . "\">" . $result->value . "</code>");
+    }
+
+    /**
+     * Highlight the given code, autodetecting if no language is provided,
+     * returns a result from Highlight.php, which has the attributes ->value
+     * and ->language that can be used to access the highlighted code and
+     * what language was autodetected if none was specified.
+     *
+     * @param string $code
+     * @param string $lang
+     * @return object
+     */
+    public function highlight(string $code, string $lang = null): object
+    {
+        $hl = new Highlighter();
+        try {
+            if ($lang) {
+                $result = $hl->highlight($lang, $code);
+            } else {
+                $hl->setAutodetectLanguages($this->config('autodetect'));
+                $result = $hl->highlightAuto($code);
+            }
+        } catch (DomainException $th) {
+            //thrown if the specified language doesn't exist
+            $hl->setAutodetectLanguages($this->config('autodetect'));
+            $result = $hl->highlightAuto($code);
+        }
+        return $result;
+    }
 
     /**
      * Method is executed as the first step when this Addon is activated.
@@ -28,7 +119,7 @@ class Addon extends \Leafcutter\Addons\AbstractAddon
      */
     public function getEventSubscribers(): array
     {
-        return [];
+        return [$this];
     }
 
     /**
@@ -40,7 +131,7 @@ class Addon extends \Leafcutter\Addons\AbstractAddon
      */
     public static function provides(): array
     {
-        return [];
+        return ['syntax-highlighting'];
     }
 
     /**
