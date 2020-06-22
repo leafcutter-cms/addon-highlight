@@ -20,7 +20,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {
-        "leafcutter/leafcutter": "dev-master",
+        "leafcutter/leafcutter": "dev-main",
         "leafcutter/theme-core": "*"
     },
     "require": {
