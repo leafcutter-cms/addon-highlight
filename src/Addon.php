@@ -59,7 +59,9 @@ class Addon extends \Leafcutter\Addons\AbstractAddon
             $lang = 'plaintext';
         }
         foreach ($classes as $class) {
-            if (preg_match('/^lang(uage)?-(.+)$/', $class, $matches)) {
+            if (preg_match('/^lang?-(.+)$/', $class, $matches)) {
+                $lang = $matches[1];
+            }elseif (preg_match('/^language?-(.+)$/', $class, $matches)) {
                 $lang = $matches[1];
             }
         }
