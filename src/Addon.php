@@ -2,6 +2,7 @@
 namespace Leafcutter\Addons\Leafcutter\SyntaxHighlighting;
 
 use DomainException;
+use DOMElement;
 use Highlight\Highlighter;
 use Leafcutter\DOM\DOMEvent;
 use Leafcutter\Response;
@@ -53,16 +54,23 @@ class Addon extends \Leafcutter\Addons\AbstractAddon
         if (in_array('nohighlight', $classes)) {
             return;
         }
+        // abort if parent node is not a PRE
+        if ($node->parentNode instanceof DOMElement) {
+            if ($node->parentNode->tagName != 'pre') {
+                return;
+            }
+        }
         // try to find a language specified in the classes
         $lang = null;
         if (in_array('plaintext', $classes)) {
             $lang = 'plaintext';
-        }
-        foreach ($classes as $class) {
-            if (preg_match('/^lang?-(.+)$/', $class, $matches)) {
-                $lang = $matches[1];
-            }elseif (preg_match('/^language?-(.+)$/', $class, $matches)) {
-                $lang = $matches[1];
+        }else {
+            foreach ($classes as $class) {
+                if (preg_match('/^lang?-(.+)$/', $class, $matches)) {
+                    $lang = $matches[1];
+                }elseif (preg_match('/^language?-(.+)$/', $class, $matches)) {
+                    $lang = $matches[1];
+                }
             }
         }
         // do highlighting
